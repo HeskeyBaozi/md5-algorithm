@@ -1,0 +1,19 @@
+{
+  "name": "md5algorithm",
+  "version": "1.0.0",
+  "description": "Web Security Homework",
+  "main": "dist/md5algorithm.min.js",
+  "repository": "https://github.com/HeskeyBaozi/md5-algorithm.git",
+  "author": "HeskeyBaozi <hezhiyu233@foxmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack -p",
+    "dev": "ts-node ./src/main.ts"
+  },
+  "devDependencies": {
+    "ts-loader": "^3.0.2",
+    "ts-node": "^3.3.0",
+    "typescript": "^2.5.3",
+    "webpack": "^3.8.1"
+  }
+}
