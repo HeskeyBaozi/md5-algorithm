@@ -8,9 +8,11 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack -p",
-    "dev": "ts-node ./src/main.ts"
+    "dev": "ts-node ./src/main.ts",
+    "test": "mocha ./test/main.js"
   },
   "devDependencies": {
+    "mocha": "^4.0.1",
     "ts-loader": "^3.0.2",
     "ts-node": "^3.3.0",
     "typescript": "^2.5.3",

@@ -6,7 +6,18 @@ type Vector = [number, number, number, number];
 
 type Generator = (x: number, y: number, z: number) => number;
 
+
+/**
+ * MD5算法
+ * Author: 何志宇<15331097>
+ */
 export default class MD5 {
+
+    /**
+     * 进行MD5摘要加密
+     * @param {string} input 输入的要进行摘要处理的字符串
+     * @returns {string} 输出128位的摘要(以16进制显示)
+     */
     public static hash(input: string): string {
         let utf8 = utf8Encode(input);
         let bits = ConvertToWordArray(utf8);
@@ -15,17 +26,35 @@ export default class MD5 {
     }
 
 
+    /**
+     * 将固定长度的块进行迭代循环, 生成最后的向量
+     * @param {number[]} bits 将原始消息进行补全而且添加了长度数据，再进行分块
+     * @returns {Vector} 最后一次迭代输出的向量CV
+     */
     public static calculate(bits: number[]): Vector {
+
+        /**
+         * 初始向量
+         */
         let [a, b, c, d] = [
             0x67452301,
             0xefcdab89,
             0x98badcfe,
             0x10325476
         ];
+
+        /**
+         * 该大循环是对每一个512bits的块进行迭代，
+         * 这个512bits的大块被分成了16个32位的字段
+         */
         for (let k = 0; k < bits.length; k += 16) {
+
+            /**
+             * 记录下一开始的向量
+             */
             let [AA, BB, CC, DD] = [a, b, c, d];
             /**
-             * F
+             * F轮次
              */
             a = this.Hmd5([a, b, c, d], this.F, bits[k], 0xD76AA478, 7);
             d = this.Hmd5([d, a, b, c], this.F, bits[k + 1], 0xE8C7B756, 12);
@@ -48,7 +77,7 @@ export default class MD5 {
             b = this.Hmd5([b, c, d, a], this.F, bits[k + 15], 0x49B40821, 22);
 
             /**
-             * G
+             * G轮次
              */
             a = this.Hmd5([a, b, c, d], this.G, bits[k + 1], 0xf61e2562, 5);
             d = this.Hmd5([d, a, b, c], this.G, bits[k + 6], 0xc040b340, 9);
@@ -71,7 +100,7 @@ export default class MD5 {
             b = this.Hmd5([b, c, d, a], this.G, bits[k + 12], 0x8d2a4c8a, 20);
 
             /**
-             * H
+             * H轮次
              */
             a = this.Hmd5([a, b, c, d], this.H, bits[k + 5], 0xfffa3942, 4);
             d = this.Hmd5([d, a, b, c], this.H, bits[k + 8], 0x8771f681, 11);
@@ -94,7 +123,7 @@ export default class MD5 {
             b = this.Hmd5([b, c, d, a], this.H, bits[k + 2], 0xc4ac5665, 23);
 
             /**
-             * I
+             * I轮次
              */
             a = this.Hmd5([a, b, c, d], this.I, bits[k], 0xf4292244, 6);
             d = this.Hmd5([d, a, b, c], this.I, bits[k + 7], 0x432aff97, 10);
@@ -117,7 +146,7 @@ export default class MD5 {
             b = this.Hmd5([b, c, d, a], this.I, bits[k + 9], 0xeb86d391, 21);
 
             /**
-             * Final
+             * Final加和
              */
             a = add(a, AA);
             b = add(b, BB);
@@ -128,16 +157,37 @@ export default class MD5 {
     }
 
 
+    /**
+     * 下面4个都是线性生成器函数32位
+     */
     private static F: Generator = (x, y, z) => (x & y) | ((~x) & z);
     private static G: Generator = (x, y, z) => (x & z) | (y & (~z));
     private static H: Generator = (x, y, z) => (x ^ y ^ z);
     private static I: Generator = (x, y, z) => (y ^ (x | (~z)));
 
 
+    /**
+     * 主要的压缩函数，输入有两个：前一个向量，和当前512bits大块中的某一个小块（32位）
+     * @param {any} A 向量
+     * @param {any} B 向量
+     * @param {any} C 向量
+     * @param {any} D 向量
+     * @param {Generator} g 生成器函数，为FGHI中的某一个
+     * @param {number} Xk 有原始消息得来的某一小块32位
+     * @param {number} Ti 来自int(2^32 | sin(i))，i作为弧度输入,且i是每一次小迭代的轮次
+     * @param {number} s 需要左移的值
+     * @returns {number} 返回一个32位的数作为向量的一部分
+     * @constructor
+     */
     private static Hmd5([A, B, C, D]: Vector, g: Generator, Xk: number, Ti: number, s: number): number {
         return add(B, CLS(add(add(add(A, g(B, C, D)), Xk), Ti), s));
     }
 
+    /**
+     * 将向量转换为16进制表示
+     * @param {Vector} arr 向量
+     * @returns {string}16进制字符串
+     */
     private static vectorToHex(arr: Vector): string {
         let result = '';
         let length32 = arr.length * 32;
